@@ -1,7 +1,7 @@
 import { genSalt, hash } from "bcrypt";
 import { model, Schema, Types } from "mongoose";
 
-const PessoaSchema = new Schema({
+const UserSchema = new Schema({
   id: {
     type: Types.ObjectId,
   },
@@ -28,11 +28,11 @@ const PessoaSchema = new Schema({
   },
 });
 
-PessoaSchema.pre("save", async function () {
+UserSchema.pre("save", async function () {
   const newSalt = await genSalt(10);
   const newHash = await hash(this.password, newSalt);
   this.salt = newSalt;
   this.password = newHash;
 });
 
-export const PessoaModel = model("Pessoas", PessoaSchema);
+export const UserModel = model("Users", UserSchema);
