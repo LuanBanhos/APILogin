@@ -1,21 +1,42 @@
 import { model, Schema, Types } from "mongoose";
+import  bcrypt  from "bcrypt";
+import { type } from "os";
+
 
 const PessoaSchema = new Schema({
   id: {
     type: Types.ObjectId,
   },
-  nome: {
+  name: {
     type: String,
     required: true,
+    
   },
-  sobrenome: {
+  username: {
+    type: String, 
+    required: true,
+    unique: true
+  },
+  email:{
     type: String,
     required: true,
+    unique: true
   },
-  idade: {
-    type: Number,
-    min: [1, "A idade deve ser maior que 1"],
+  password:{
+    type: String,
+    required: true
   },
+  salt:{
+    type:String
+  }
+});
+
+PessoaSchema.pre('save', async function (){
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(this.password,salt);
+
+  this.salt = salt;
+  this.password = hash;
 });
 
 export const PessoaModel = model("Pessoas", PessoaSchema);

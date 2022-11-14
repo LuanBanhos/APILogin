@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import { PessoaModel } from "../models/pessoa-model";
+import  bcrypt  from "bcrypt";
+import {sign} from "jsonwebtoken";
+import { userInfo } from "os";
+import { json } from "stream/consumers";
 
 export class PessoaController {
   async store(req: Request, res: Response) {
@@ -66,4 +70,50 @@ export class PessoaController {
       return res.status(404).json({ msg: "Falha ao deletar pessoa" });
     }
   }
+
+  async login (req: Request, res: Response){
+      const {email , password} = req.body
+
+      if(!email){
+        return res.status(422).json({msg:'Email Obrigatorio!'})
+      }
+      if(!password){
+        return res.status(422).json({msg:'Senha Obrigatorio!'})
+      }
+
+      const pessoa = await PessoaModel.findOne({email:email})
+
+      if(!pessoa){
+        return res.status(404).json({msg:'Email Não Encontrado'})
+      }
+
+      const checkPassowrd = await bcrypt.compare(password, pessoa.password)
+
+      if(!checkPassowrd){
+        return res.status(422).json({msg:"Senha Incorreta!"})
+      }
+
+      try {
+        const scret = process.env.JWT_SCRET
+
+        const token = sign ({},'scret',pessoa.id  )
+
+        res.status(200).json({msg:'Usuario logaado',token})
+        
+    
+
+      
+
+
+      } catch (error) {
+        res.status(500).json({msg:"Erro No servidor, tente mais tarde!"})
+      }
+  }
 }
+
+
+
+
+
+
+

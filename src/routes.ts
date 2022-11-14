@@ -13,5 +13,6 @@ routes.get("/pessoas", pessoaController.index);
 routes.get("/pessoas/:id", pessoaController.show);
 routes.patch("/pessoas/:id", pessoaController.update);
 routes.delete("/pessoas/:id", pessoaController.delete);
+routes.post("/login",pessoaController.login);
 
 export default routes;
