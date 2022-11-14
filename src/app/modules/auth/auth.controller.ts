@@ -1,30 +1,43 @@
 import { compare } from "bcrypt";
+import { validate, ValidationError } from "class-validator";
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
+
+import { LoginUserDTO } from "../user/DTOs/login-user.dto";
 import { UserModel } from "../user/models/user.model";
 
 export class AuthController {
   async login(req: Request, res: Response) {
-    const { email, password } = req.body;
-    if (!email) return res.status(422).json({ msg: "Email Obrigatorio!" });
-
-    if (!password) return res.status(422).json({ msg: "Senha Obrigatorio!" });
-
-    const user = await UserModel.findOne({ email: email });
-
-    if (!user) return res.status(404).json({ msg: "Email Não Encontrado" });
-
-    const checkPassowrd = await compare(password, user.password);
-
-    if (!checkPassowrd)
-      return res.status(422).json({ msg: "Senha Incorreta!" });
-
     try {
+      const data = new LoginUserDTO();
+      data.email = req.body.email;
+      data.password = req.body.password;
+
+      const errors = await validate(data);
+      if (errors.length > 0) throw errors;
+
+      const user = await UserModel.findOne({ email: data.email });
+      if (!user) return res.status(404).json({ msg: "User not found" });
+
+      const passwordIsValid = await compare(data.password, user.password);
+      if (!passwordIsValid)
+        return res.status(404).json({ msg: "User not found" });
+
       const secret = process.env["JWT_SECRET"] as string;
       const token = sign({ subject: user.id, expiresIn: "1h" }, secret);
-      res.status(200).json({ msg: "Usuario logaado", token });
-    } catch (error) {
-      res.status(500).json({ msg: error });
+
+      res.status(200).json({ token });
+    } catch (errors: ValidationError[] | any) {
+      const responseErrors = [];
+      errors.map((error: ValidationError) => {
+        responseErrors.push({
+          property: error.property,
+          rules: {
+            ...error.constraints,
+          },
+        });
+      });
+      res.status(400).json(responseErrors);
     }
   }
 
