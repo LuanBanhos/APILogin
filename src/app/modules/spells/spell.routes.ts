@@ -7,3 +7,6 @@ const spellController = new SpellController();
 
 spellRoutes.post("/register/spell",spellController.registerSpell);
 spellRoutes.post("/spells",spellController.spell);
+
+
+export default spellRoutes;

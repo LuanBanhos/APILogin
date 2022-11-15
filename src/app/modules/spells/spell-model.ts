@@ -1,4 +1,4 @@
-import { model, Schema, Types } from "mongoose";
+import { model, Schema, Types, } from "mongoose";
 import { DamegeType, MagicComponents, MagicSchool, SpellCondition } from "./spell-enum";
 
 
@@ -20,18 +20,15 @@ const spellmodel = new Schema({
         required: true,
       },
     damege:{
-        type: String, DamegeType,
-        enum: DamegeType,
-        default: DamegeType.None
+        type: String, 
+        default: 0
     },
     conditions:{
-        type:SpellCondition,
-        default: [SpellCondition.None]
+        default: 0,
     },
     school:{
-        type: String, MagicSchool,
-        enum:MagicSchool,
-        default: MagicSchool.None
+        type: String,
+        default: 0
     },
     castingTime:{
         type: String
@@ -43,8 +40,8 @@ const spellmodel = new Schema({
         type: String
     },
     components:{
-        type: MagicComponents,
-        default:[]
+        type:String,
+        default:0
     }
 })
 
